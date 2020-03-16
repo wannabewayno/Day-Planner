@@ -1,24 +1,28 @@
-$('document').ready(function(){
-  
 
-});
-
-var rowInformation = {
+// Set the number of rows to create, the classes for the row and the labelling structure.
+var rowHeirarchy = {
     numberOfRows:9,
     rowClasses:"row no-gutters timeblock",
     rowLabel:{
-        startingIndex:9,
-        prefix:"time",
-        suffix:["AM","PM"]
+        labelTarget:"p",
+        startingLabel: "9AM",
+        cyclicObject:{
+            N:12,
+            suffixArray:["AM","PM"],
+            suffixPhase:-1,
+            ifAscending:true,
+        }
     }
 };
-var columnHTMLelements = {
+// Sets the elements in each column, classes for each column end each element individualy.
+// copy pasta the structure to add columns.
+var columnHeirarchy = {
     column1:{
         columnClasses:"col-1 hour d-flex justify-content-center",
         columnElements:{
             elements:["<p>"],
             elementClasses:{
-            "<p>":"align-self-center"
+            "<p>":"align-self-center "
             }
         }
     },
@@ -40,68 +44,129 @@ var columnHTMLelements = {
     }
 }
 
-function generateHTML(rowInformation,columnHTMLelements,appendTo){
-    let containerEl = $(appendTo);
-    let time = rowInformation.rowLabel.startingIndex;
-    let suffix = rowInformation.rowLabel.suffix[0];
-    for (let i = 0; i < rowInformation.numberOfRows; i++) {
+function generateGrid(rowHeirarchy,columnHeirarchy,appendTarget){
+    // labelTarget: target to display row label | targetEl: target to append the whole grid to | label: label to start the first row with.
+    const labelTarget = rowHeirarchy.rowLabel.labelTarget;
+    let targetEl = $(appendTarget);
+    let label = rowHeirarchy.rowLabel.startingLabel;
+
+    //creates a row element and adds classes defined in rowHeirarchy
+    for (let i = 0; i < rowHeirarchy.numberOfRows; i++) {
         let rowEl = $('<div>');
-        rowEl.addClass(rowInformation.rowClasses);
+        rowEl.addClass(rowHeirarchy.rowClasses);
 
-        for (column in columnHTMLelements){
+        // loops through all column keys in columnHeirarchy and creates column elements and children with associated classes.
+        for (column in columnHeirarchy){
             let colEl = $('<div>');
-            colEl.addClass(columnHTMLelements[column].columnClasses);
+            colEl.addClass(columnHeirarchy[column].columnClasses);
 
-            columnHTMLelements[column].columnElements.elements.forEach(element => {
+            // loops through all html elements associated with this column and appends them to the column.
+            columnHeirarchy[column].columnElements.elements.forEach(element => {
                 let individualEl = $(element);
-
-                if ( individualEl.is("p")) {
-                    let timeLabel = time+suffix
-                    individualEl.text(timeLabel);
+                individualEl.addClass(columnHeirarchy[column].columnElements.elementClasses[element]);
+                
+                // selector to append row label to.
+                if (individualEl.is(labelTarget)) {
+                    individualEl.html(label);
                 }
-                individualEl.addClass(columnHTMLelements[column].columnElements.elementClasses[element]);    
                 colEl.append(individualEl);
             });
-
+            // Appends created columns to the row
             rowEl.append(colEl);
         }
-        containerEl.append(rowEl); 
-        time = cyclicN(12,time,suffix,true)[0];
-        suffix = cyclicN(12,time,suffix,true)[1]; 
+        // Appends the row (with columns and elements) to the target you identified
+        targetEl.append(rowEl);
+        label = cyclicN(label,rowHeirarchy.rowLabel.cyclicObject);
     }
 }
 
-generateHTML(rowInformation,columnHTMLelements,".container");
+generateGrid(rowHeirarchy,columnHeirarchy,".container");
 
+/* This generates cyclic labels (10AM ,11AM, 12PM, 1PM etc..)
+    findNextCyclicOf: is the CURRENT label and you want to find the next label in the series.
+        e.g let findNextCyclicOf = 9AM, the next label would be 10AM. 
+    N: is the cyclic number.
+        e.g 12 -> 1, 2, 3 ....10, 11, 12.
+    suffixArray: is an array containing all the suffixes you want to loop through. 
+        e.g [AM,PM] -> 1AM, 2AM, 3AM .... 10PM, 11PM, 12AM.
+    ifAscending: is a boolean, describes if you want to go up or down series. 
+        e.g true -> 9AM, 10AM, 11AM. false -> 9AM, 8AM, 7AM. 
+    suffixPhase: is the phase of the suffix labels with respect to the numbers.
+        (in phase, default): suffixPhase = 0 (or omitted) -> 10PM, 11PM, 12PM, 1AM, 2AM, 3AM.
+        *a phase change of -1 is needed to allow for our 12hr time formatting,
+        (-1 out of phase): suffixPhase = -1 -> 10PM, 11PM, 12AM, 1AM, 2AM, 3AM.
+             This makes the suffix change occur 1 earlier than the number change. */
 
-    function cyclicN(N,findNextCyclicOf,suffix,ifAscending){
-        var cyclicArray =[];
-        cyclicArray.length = N*suffix.length
-        for (let i = 0; i < N; i++) {
-            cyclicArray[i] = (i+1); 
+function cyclicN(findNextCyclicOf,cyclicObject){
+    // extract information from cyclicObject
+    const N = rowHeirarchy.rowLabel.cyclicObject.N;
+    const suffixArray = cyclicObject.suffixArray;
+    const suffixPhase = cyclicObject.suffixPhase;
+    const ifAscending = cyclicObject.ifAscending;
+    // create some local variables
+    let nArray =[];
+    let sArray =[];
+    const cyclicPeriod = N*suffixArray.length
+    let count = 1;
+    let suffixIndex = 0;
+    // create an array of numbers and suffixes
+    for (let i = 1; i <= cyclicPeriod ; i++) {
+        if (count > N){
+            count = 1;
+            suffixIndex++;
         }
-        index = cyclicArray.indexOf(findNextCyclicOf);
-
-        if (index === -1){
-        throw "number needs to be an integer between 1 and "+N;
-        }
-        if (ifAscending === true){
-            if (index === (N-1)){
-                if (suffix === "AM"){
-                    return [1,"PM"];
-                } else {
-                    return [1,"AM"];
-                }
-            }
-            return [cyclicArray[index+1],suffix];
-        } else {
-             if (index === 0){
-                if (suffix === "AM"){
-                    return [12,"PM"];
-                } else {
-                    return [12,"AM"];
-                }
-            }
-            return [cyclicArray[index-1],suffix];
-        }
+        sArray.push(suffixArray[suffixIndex]);
+        nArray.push(count);
+        count++; 
     }
+    // shift the suffix array by a phase
+    sArray = changePhase(sArray, suffixPhase);
+    let index = 0;
+    const cyclicArray = [];
+    // adds the shifted suffix array to the number array to create the cyclic array
+    nArray.forEach((element) => {
+        element += sArray[index];
+        cyclicArray[index] = element;
+        index++;
+    });
+    const currentCyclicIndex = cyclicArray.indexOf(findNextCyclicOf);
+
+    if (ifAscending === true){
+        if(currentCyclicIndex === cyclicPeriod-1){
+            var nextCyclicIndex = 0;
+        } else {
+            var nextCyclicIndex = currentCyclicIndex + 1;
+        }
+        const nextCyclic = cyclicArray[nextCyclicIndex]; 
+        return nextCyclic;
+    } else { // else, descending, return an index lower than what you started with; 
+        if(currentCyclicIndex === 0){
+            var nextCyclicIndex = cyclicPeriod - 1;
+        } else {
+            var nextCyclicIndex = currentCyclicIndex - 1;
+        }
+        const nextCyclic = cyclicArray[nextCyclicIndex]; 
+        return nextCyclic;
+    }
+
+}
+
+
+function changePhase(array, phase){
+    array1 = array.filter(function(value,index,array){
+        if (index < Math.abs(phase)){
+            return value;  
+        }
+    });
+    array2 = array.filter(function(value,index,array){
+        if (index >= Math.abs(phase)){
+            return value;  
+        }
+    });
+    if (Math.sign(phase) === -1){
+        outputArray = array2.concat(array1);
+    } else {
+        outputArray = array1.concat(array2);
+    }
+    return outputArray;
+}

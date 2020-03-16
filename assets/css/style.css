@@ -1,3 +1,8 @@
+:root{
+  --save-button-font:25px;
+  --save-button-font-hover:calc(var(--save-button-font)*1.4)
+}
+
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
@@ -7,7 +12,7 @@ body {
 textarea{
   width: 100%;
   height: 100%;
-  background: green;
+  background:transparent;
   border: none;
   resize: none;
   color: #000000;
@@ -60,16 +65,35 @@ textarea{
 }
 
 .saveBtn {
+  font-size: 25px;
   border-left: 1px solid black;
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
   background-color: #06AED5;
   color: white;
-}
-
-
-.saveBtn, i:hover {
-  font-size: 20px;
   transition: all .3s ease-in-out;
 }
+
+.saveBtn:hover{
+  font-size: calc(var(--save-button-font-hover));
+  transition: all .3s ease-in-out;
+}
+
+.saveBtnLocked {
+  font-size: 25px;
+  border: 2px solid #0487a4;
+  border-left: 1px solid black;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  background-color: #cccccc;
+  color: #0487a4;
+  transition: all .3s ease-in-out;
+}
+
+.saveBtnLocked:hover{
+  font-size: 35px;
+}
+
+
+
 
