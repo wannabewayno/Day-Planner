@@ -69,24 +69,24 @@ textarea:read-only{
 }
 
 .hour {
-  background-color: transparent;
+  background-color: rgba(255,255,255,0.5);
   color: #000000;
   border-top: 1px dashed #000000;
 }
 
 .past {
-  background-color: #d3d3d3;
-  color: white;
+  background-color:	hsla(0, 0%, 83%, 0.6);
+  color: black;
 }
 
 .present {
-  background-color: #ff6961;
-  color: white;
+  background-color: hsla(3, 100%, 69%, 0.6);
+  color: black;
 }
 
 .future {
-  background-color: #77dd77;
-  color: white;
+  background-color: hsla(120, 60%, 67%, 0.6);
+  color: black;
 }
 
 .saveBtn {
@@ -106,12 +106,12 @@ textarea:read-only{
 
 .saveBtnLocked {
   font-size: 25px;
-  border: 2px solid #0487a4;
+  border: 2px solid slategray;
   border-left: 1px solid black;
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
-  background-color: #cccccc;
-  color: #0487a4;
+  background-color: hsla(0, 0%, 80%,0.5);
+  color: slategray;
   transition: all .3s ease-in-out;
 }
 

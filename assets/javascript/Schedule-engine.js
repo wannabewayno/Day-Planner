@@ -7,6 +7,8 @@ const Storage ={};
 $( document ).ready(function() {
     loadToDo();
     displayLocal();
+    refresh();
+    checkDate();
 });
 
 
@@ -64,6 +66,7 @@ function loadToDo(){
 function displayLocal(){
     today = findDay();
     timeOfDay = findTimeOfDay();
+    $('#currentDay').html("");
     $('#currentDay').html(today+" "+timeOfDay)
 }
 // get's the current local time in hours, starts a timer to update on the hour, every hour without re-loading the page
@@ -73,17 +76,17 @@ function getTime(){
     const second = moment().second();
     const millisecond = moment().millisecond();
     hours = hour + minute/60 + second/3600 + millisecond/3600000;
-    console.log(hours);
     refreshWhen(hours);
     return hours;
 }
+
 // check's the time, updates the colour scheme;
 function refresh(){
     const hours = Math.floor(getTime());
-    console.log("hours: "+hours);
+    // creates some reference arrays, the index of these array map the values to each other.
     const hourArray = generateHourArray();
     const IdArray = generateIdArray();
-   
+    // using the fact that they map, we filter the Idtags based on the current time.
     const pastIds = IdArray.filter(function(element,index,array){
                  if(hourArray[index] < hours){
                      return element;
@@ -99,9 +102,10 @@ function refresh(){
                     return element;
                 };
             }); 
-    console.log(pastIds);
-    console.log(futureIds);
-    console.log(presentIds);
+    // update the colour scheme.
+    pastIds.forEach(element => $(element).addClass('past'));
+    presentIds.forEach(element => $(element).addClass('present'));
+    futureIds.forEach(element => $(element).addClass('future'));
     
 }
 
@@ -113,33 +117,27 @@ function generateHourArray(){
     return hourArray;
 }
 
-    function generateIdArray(){
-        const prefix = rowHeirarchy.rowLabel.cyclicObject.prefix // as defined in the html-generator to generate id's
-        const IdArray = ["12AM"];
-        for (let i = 0; i < 23; i++) {
-            IdArray[i+1] = cyclicN(IdArray[i],rowHeirarchy.rowLabel.cyclicObject);       
-        }
-        for (let i = 0; i < length.IdArray; i++) {
-            IdArray[i] += prefix;
-        }
-    return IdArray;
+function generateIdArray(){
+    const prefix = rowHeirarchy.rowLabel.cyclicObject.prefix // as defined in the html-generator to generate id's
+    const cyclicArray = ["12AM"];
+    for (let i = 0; i < 23; i++) {
+        cyclicArray[i+1] = cyclicN(cyclicArray[i],rowHeirarchy.rowLabel.cyclicObject);       
     }
+    const IdArray = [];
+    cyclicArray.forEach(element => {
+        IdArray.push("#"+prefix+element)
+    });
+return IdArray;
+}
 
 
 // The timer function that getTime() calls. This will call refresh(), every hour, on the hour, forever.
 function refreshWhen(hours){
     refreshIntervalHours = Math.ceil(hours) - hours;
-    console.log(refreshIntervalHours);
     refreshIntervalMilliseconds = refreshIntervalHours*3600000;
-    console.log(refreshIntervalMilliseconds);
     interval = setInterval(function(){
-        startUp();
-        getTime();
+        refresh();
     },refreshIntervalMilliseconds);
-}
-
-function startUp(){
-    console.log("STARTUP IS FIRING");
 }
 
 function findDay(){
@@ -164,7 +162,7 @@ function findDay(){
 function findTimeOfDay(){
     const hour = moment().hour();
      
-    if(hour > 5 && hour < 12){
+    if(hour > 4 && hour < 12){
         return "morning"+" <i class=\"fas fa-coffee\"></i>";
     } 
     if(hour > 12 && hour < 17){
@@ -173,7 +171,24 @@ function findTimeOfDay(){
     if(hour > 17 && hour < 21){
         return "evening"+" <i class=\"fas fa-moon\"></i>";
     } 
-    if(hour > 21 || hour < 4){
-        return "night"+ " <i class=\"fas fa-star\"></i>";
+    if(hour > 21 || hour < 5){
+        return "night"+" <i class=\"fas fa-star\"></i>";
     } 
+}
+//checks the current day against local storage, if they don't match, clear's local storage
+function checkDate(){
+    currentDate = moment().format().substring(0,10);
+    storedDate = localStorage.getItem("Date");
+    
+    if (localStorage.getItem("Date") === null){
+        localStorage.setItem("Date",currentDate);
+    }
+    if(currentDate !== storedDate){
+        cleanSlate();
+        localStorage.setItem("Date",currentDate);
+    }
+}
+
+function cleanSlate(){
+    localStorage.clear();
 }
