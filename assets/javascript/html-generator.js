@@ -8,6 +8,7 @@ var rowHeirarchy = {
         startingLabel: "9AM",
         cyclicObject:{
             N:12,
+            prefix:["time"],
             suffixArray:["AM","PM"],
             suffixPhase:-1,
             ifAscending:true,
@@ -49,6 +50,7 @@ function generateGrid(rowHeirarchy,columnHeirarchy,appendTarget){
     const labelTarget = rowHeirarchy.rowLabel.labelTarget;
     let targetEl = $(appendTarget);
     let label = rowHeirarchy.rowLabel.startingLabel;
+    let prefix = rowHeirarchy.rowLabel.cyclicObject.prefix
 
     //creates a row element and adds classes defined in rowHeirarchy
     for (let i = 0; i < rowHeirarchy.numberOfRows; i++) {
@@ -64,11 +66,16 @@ function generateGrid(rowHeirarchy,columnHeirarchy,appendTarget){
             columnHeirarchy[column].columnElements.elements.forEach(element => {
                 let individualEl = $(element);
                 individualEl.addClass(columnHeirarchy[column].columnElements.elementClasses[element]);
-                
+
                 // selector to append row label to.
                 if (individualEl.is(labelTarget)) {
                     individualEl.html(label);
                 }
+                // selector to append id to.
+                if (individualEl.is('textarea')) {
+                    individualEl.attr('id', prefix+label);
+                }
+
                 colEl.append(individualEl);
             });
             // Appends created columns to the row
