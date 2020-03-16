@@ -2,11 +2,20 @@
   --save-button-font:25px;
   --save-button-font-hover:calc(var(--save-button-font)*1.4)
 }
+/* font-family: 'Baloo 2', cursive; */
 
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
   line-height: 1;
+  background-image: url(../images/pen+notebook.jpg);
+  background-size: cover;
+  background-position-y: 100px;
+  background-position-x:center;
+
+}
+.container{
+  background-color: transparent;
 }
 
 textarea{
@@ -18,14 +27,30 @@ textarea{
   color: #000000;
   border-left: 1px solid black;
   padding: 10px;
+  border-top: 1px solid grey;
+}
+
+textarea:read-only{
+  font-family: 'Baloo 2', cursive;
+  font-style: italic;
+  outline:none;
+  color:black;
+  cursor: default;
 }
 
 .jumbotron {
   text-align: center;
-  background-color: transparent;
-  color: black;
+  background-image: url(../images/plush-design-studio.jpg);
+  background-size: cover;
+  background-position: center;
+  color:#ffc400;
   border-radius: 0;
   border-bottom: 10px solid black;
+}
+.shade{
+  background-color:hsla(15, 85%, 10%, 0.6);
+  border-radius: 15px;
+  padding:20px;
 }
 
 .description{
@@ -40,11 +65,11 @@ textarea{
 .row {
   white-space: pre-wrap;
   height: 80px;
-  border-top: 1px solid white;;
+  margin-top:5px
 }
 
 .hour {
-  background-color: #ffffff;
+  background-color: transparent;
   color: #000000;
   border-top: 1px dashed #000000;
 }
